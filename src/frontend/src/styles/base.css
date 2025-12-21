@@ -1,0 +1,199 @@
+/**
+ * Base Styles
+ * ===========
+ * CSS reset, typography defaults, and foundational styles.
+ */
+
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   CSS Reset
+   ======================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ========================================
+   Root & Body
+   ======================================== */
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--color-text);
+    background: var(--color-bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Background pattern */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(var(--color-primary-rgb), 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(var(--color-agent-purple-rgb), 0.1), transparent),
+        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(var(--color-agent-blue-rgb), 0.08), transparent);
+    pointer-events: none;
+    z-index: -1;
+}
+
+html, body, #root {
+    height: 100%;
+    width: 100%;
+}
+
+/* ========================================
+   Typography
+   ======================================== */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-display);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+h1 { 
+    font-size: var(--font-size-5xl); 
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h2 { font-size: var(--font-size-4xl); }
+h3 { font-size: var(--font-size-3xl); }
+h4 { font-size: var(--font-size-2xl); }
+h5 { font-size: var(--font-size-xl); }
+h6 { font-size: var(--font-size-lg); }
+
+p {
+    margin-bottom: var(--spacing-4);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+}
+
+a {
+    color: var(--color-primary-light);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary);
+}
+
+strong, b {
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ========================================
+   Selection
+   ======================================== */
+::selection {
+    background-color: rgba(var(--color-primary-rgb), 0.4);
+    color: var(--color-text);
+}
+
+/* ========================================
+   Scrollbar (Webkit)
+   ======================================== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-light);
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+/* ========================================
+   Focus States
+   ======================================== */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   Images & Media
+   ======================================== */
+img, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ========================================
+   Lists
+   ======================================== */
+ul, ol {
+    list-style: none;
+}
+
+/* ========================================
+   Code
+   ======================================== */
+code, pre {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+}
+
+code {
+    background: var(--color-surface-alt);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-sm);
+    color: var(--color-primary-light);
+}
+
+pre {
+    background: var(--color-surface);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+}
+
+/* ========================================
+   Glass Morphism Utility
+   ======================================== */
+.glass {
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
+}

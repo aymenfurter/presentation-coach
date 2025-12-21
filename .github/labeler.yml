@@ -1,0 +1,46 @@
+# Label configuration for PR auto-labeling
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'src/frontend/**/*'
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'src/backend/**/*'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'docs/**/*'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*test*'
+          - '**/tests/**/*'
+          - '**/__tests__/**/*'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**/*'
+          - 'Dockerfile'
+          - 'docker-compose*.yml'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/package.json'
+          - '**/package-lock.json'
+          - '**/requirements.txt'
+          - '**/pyproject.toml'
+
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.yml'
+          - '**/*.yaml'
+          - '**/*.json'
+          - '**/*.toml'
+          - '**/.*'

@@ -1,0 +1,27 @@
+{
+    "description": "Presentation video analyzer for segmentation and transcription",
+    "scenario": "videoShot",
+    "baseAnalyzerId": "prebuilt-videoAnalyzer",
+    "config": {
+        "locales": [],
+        "returnDetails": true,
+        "enableFace": false,
+        "disableContentFiltering": false,
+        "segmentationMode": "auto",
+        "disableFaceBlurring": false
+    },
+    "fieldSchema": {
+        "fields": {
+            "segmentType": {
+                "type": "string",
+                "method": "generate",
+                "description": "Type of content shown in this shot. Must be one of: Slide (presentation slide visible), Person (speaker visible without slides), Demo (screen recording or product demonstration), Other (anything else)"
+            },
+            "description": {
+                "type": "string",
+                "method": "generate",
+                "description": "Brief description of what is happening in this shot."
+            }
+        }
+    }
+}

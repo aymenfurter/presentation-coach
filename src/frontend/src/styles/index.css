@@ -1,0 +1,25 @@
+/**
+ * Main Styles Index
+ * =================
+ * Import all style modules in the correct order.
+ */
+
+/* 1. Design Tokens (must be first) */
+@import './variables.css';
+
+/* 2. Base styles (reset, typography) */
+@import './base.css';
+
+/* 3. Layout utilities */
+@import './layout.css';
+
+/* 4. Reusable components */
+@import './components.css';
+
+/* 5. Animations */
+@import './animations.css';
+
+/* 6. Page-specific styles */
+@import './pages/home.css';
+@import './pages/session.css';
+@import './pages/analysis.css';

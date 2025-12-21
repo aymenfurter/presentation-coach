@@ -1,0 +1,32 @@
+[tool.ruff]
+# Lax ruleset - focus on most important issues only
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+# Only enable critical rules
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "W",   # pycodestyle warnings
+]
+
+# Ignore less critical rules for a lax config
+ignore = [
+    "E501",  # line too long - let formatter handle
+    "E402",  # module level import not at top
+    "E731",  # lambda assignment
+]
+
+# Exclude common non-source directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "node_modules",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401", "F811"]  # Allow unused imports in tests
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py

@@ -1,0 +1,789 @@
+/* ========================================
+   Loading State
+   ======================================== */
+.home-loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ========================================
+   Heat Transition Duration (shared)
+   ======================================== */
+.home-hero {
+    --heat-transition: 30s ease;
+}
+
+/* ========================================
+   Hero - Full Viewport Centered
+   ======================================== */
+.home-hero {
+    position: relative;
+    z-index: var(--z-sticky);
+    background: var(--color-bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-6);
+}
+
+.home-hero-inner {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+/* ========================================
+   Hero Content - Logo, Title, Tagline
+   ======================================== */
+.home-hero-content {
+    margin-bottom: var(--spacing-10);
+}
+
+.home-logo-mark {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto var(--spacing-6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-logo-mark svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Heat up title gradient - slow 30s transition using overlay */
+.home-title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--letter-spacing-tight);
+    margin-bottom: var(--spacing-3);
+    background: linear-gradient(135deg, var(--color-text-gradient-start) 0%, var(--color-text-gradient-end) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+/* Hot title overlay for smooth transition */
+.home-title::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--color-text-gradient-start) 0%, var(--color-warning-light) 50%, var(--color-heat-orange) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    transition: opacity var(--heat-transition);
+}
+
+.home-hero.heating .home-title::after {
+    opacity: 1;
+}
+
+.home-tagline {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: var(--line-height-base);
+}
+
+/* ========================================
+   Actions Container
+   ======================================== */
+.home-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-6);
+}
+
+/* ========================================
+   Primary Action - Start Practice
+   ======================================== */
+.home-primary-action {
+    width: 100%;
+    position: relative;
+}
+
+.home-action-row {
+    display: flex;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(var(--color-primary-rgb), 0.15);
+    transition: box-shadow var(--heat-transition);
+}
+
+/* Heat up action row glow */
+.home-hero.heating .home-action-row {
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        0 0 60px rgba(249, 115, 22, 0.4),
+        0 0 100px rgba(239, 68, 68, 0.2);
+}
+
+.home-start-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4) var(--spacing-6);
+    background: var(--gradient-primary);
+    color: white;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hot gradient overlay for smooth transition */
+.home-start-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--color-heat-orange), var(--color-error));
+    opacity: 0;
+    transition: opacity var(--heat-transition);
+    pointer-events: none;
+}
+
+/* Heat up start button */
+.home-hero.heating .home-start-btn::before {
+    opacity: 1;
+}
+
+.home-start-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.home-start-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.home-start-btn svg {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    z-index: 2;
+    color: white;
+}
+
+/* Ensure button text stays above overlay */
+.home-start-btn span,
+.home-start-btn svg,
+.home-start-btn .spinner {
+    position: relative;
+    z-index: 2;
+    color: white;
+}
+
+.home-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5);
+    background-color: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background-color var(--heat-transition), border-color var(--heat-transition);
+    min-width: 200px;
+}
+
+/* Heat up dropdown trigger */
+.home-hero.heating .home-dropdown-trigger {
+    background-color: rgba(249, 115, 22, 0.15);
+    border-left-color: rgba(249, 115, 22, 0.3);
+}
+
+.home-dropdown-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.home-selected-type {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex: 1;
+    text-align: left;
+}
+
+.home-selected-type svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-primary-light);
+    transition: color var(--heat-transition);
+}
+
+/* Heat up the type icons (Money, Laptop, People) */
+.home-hero.heating .home-selected-type svg {
+    color: var(--color-heat-gold);
+}
+
+.home-chevron {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+    transition: transform var(--transition-base);
+    flex-shrink: 0;
+}
+
+.home-chevron.open {
+    transform: rotate(180deg);
+}
+
+/* ========================================
+   Dropdown Menu
+   ======================================== */
+.home-dropdown {
+    position: absolute;
+    top: calc(100% + var(--spacing-2));
+    left: 0;
+    right: 0;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    z-index: var(--z-dropdown);
+    box-shadow: var(--shadow-xl);
+    animation: dropdownFade 0.2s ease-out;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.home-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    width: 100%;
+    padding: var(--spacing-4) var(--spacing-5);
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    text-align: left;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.home-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.home-dropdown-item.selected {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.home-dropdown-item + .home-dropdown-item {
+    border-top: 1px solid var(--color-border);
+}
+
+.home-dropdown-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(var(--color-primary-rgb), 0.15);
+    border-radius: var(--radius-lg);
+    color: var(--color-primary-light);
+    flex-shrink: 0;
+    transition: background-color var(--heat-transition), color var(--heat-transition);
+}
+
+/* Heat up dropdown icons */
+.home-hero.heating .home-dropdown-icon {
+    background-color: rgba(249, 115, 22, 0.2);
+    color: var(--color-heat-gold);
+}
+
+.home-dropdown-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.home-dropdown-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.home-dropdown-name {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: 2px;
+}
+
+.home-dropdown-desc {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.home-dropdown-check {
+    width: 20px;
+    height: 20px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+/* ========================================
+   Secondary Action - Upload Link
+   ======================================== */
+.home-upload-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border-radius: var(--radius-lg);
+}
+
+.home-upload-link:hover {
+    color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.home-upload-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ========================================
+   Upload Panel
+   ======================================== */
+.home-upload-panel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding: var(--spacing-5);
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    animation: slideUp 0.3s ease-out;
+    transition: border-color var(--heat-transition), background-color var(--heat-transition);
+}
+
+/* Heat up upload panel */
+.home-hero.heating .home-upload-panel {
+    border-color: rgba(249, 115, 22, 0.3);
+    background-color: rgba(249, 115, 22, 0.03);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.home-upload-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-8) var(--spacing-6);
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.home-upload-dropzone:hover {
+    border-color: var(--color-primary);
+    background: rgba(99, 102, 241, 0.05);
+    color: var(--color-text);
+}
+
+.home-upload-dropzone svg {
+    width: 32px;
+    height: 32px;
+    color: var(--color-text-muted);
+}
+
+/* Upload Ready State */
+.home-upload-ready {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+.home-upload-file {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) var(--spacing-4);
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: var(--radius-lg);
+}
+
+.home-upload-filename {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.home-upload-remove {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.home-upload-remove:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+}
+
+/* Upload Type Selector */
+.home-upload-type-select {
+    position: relative;
+}
+
+.home-upload-type-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.home-upload-type-trigger:hover {
+    border-color: var(--color-border-light);
+}
+
+.home-upload-type-trigger svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-primary-light);
+    transition: color var(--heat-transition);
+}
+
+/* Heat up upload type trigger icon */
+.home-hero.heating .home-upload-type-trigger svg {
+    color: var(--color-heat-gold);
+}
+
+.home-upload-type-trigger svg:last-child {
+    margin-left: auto;
+    color: var(--color-text-muted);
+    transition: transform var(--transition-base), color var(--heat-transition);
+}
+
+.home-upload-type-trigger svg.open {
+    transform: rotate(180deg);
+}
+
+.home-upload-type-trigger span {
+    flex: 1;
+    text-align: left;
+}
+
+.home-upload-type-dropdown {
+    position: absolute;
+    top: calc(100% + var(--spacing-1));
+    left: 0;
+    right: 0;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    z-index: var(--z-dropdown);
+    box-shadow: var(--shadow-lg);
+}
+
+.home-upload-type-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    text-align: left;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.home-upload-type-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.home-upload-type-option.selected {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.home-upload-type-option + .home-upload-type-option {
+    border-top: 1px solid var(--color-border);
+}
+
+.home-upload-type-option svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-primary-light);
+    transition: color var(--heat-transition);
+}
+
+/* Heat up upload type option icons */
+.home-hero.heating .home-upload-type-option svg {
+    color: var(--color-heat-gold);
+}
+
+/* Analyze Button */
+.home-analyze-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hot gradient overlay for smooth transition */
+.home-analyze-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--color-heat-orange), var(--color-error));
+    opacity: 0;
+    transition: opacity var(--heat-transition);
+    pointer-events: none;
+}
+
+/* Heat up analyze button */
+.home-hero.heating .home-analyze-btn::before {
+    opacity: 1;
+}
+
+.home-analyze-btn span,
+.home-analyze-btn svg,
+.home-analyze-btn .spinner {
+    position: relative;
+    z-index: 2;
+    color: white;
+}
+
+/* Heat up analyze button glow */
+.home-hero.heating .home-analyze-btn {
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.4);
+    transition: box-shadow var(--heat-transition);
+}
+
+.home-analyze-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.home-analyze-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Cancel Button */
+.home-upload-cancel {
+    padding: var(--spacing-2) var(--spacing-4);
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.home-upload-cancel:hover {
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Ember Particles Effect
+   ======================================== */
+.ember-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.ember-particle {
+    position: absolute;
+    bottom: -30px;
+    opacity: 0;
+    animation: emberRise var(--duration, 8s) ease-out var(--delay, 0s) forwards;
+    filter: blur(0.5px);
+}
+
+.ember-particle svg {
+    width: var(--size, 12px);
+    height: var(--size, 12px);
+    filter: drop-shadow(0 0 4px hsla(var(--hue, 30), 100%, 50%, 0.8));
+    animation: emberGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes emberRise {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(0.5);
+        opacity: 0;
+    }
+    10% {
+        opacity: var(--particle-opacity, 0.5);
+        transform: translateY(-5vh) rotate(10deg) scale(0.8);
+    }
+    30% {
+        opacity: var(--particle-opacity, 0.5);
+    }
+    60% {
+        opacity: calc(var(--particle-opacity, 0.5) * 0.6);
+    }
+    80% {
+        opacity: calc(var(--particle-opacity, 0.5) * 0.2);
+    }
+    100% {
+        transform: translateY(-70vh) rotate(45deg) scale(0.3);
+        opacity: 0;
+    }
+}
+
+@keyframes emberGlow {
+    0% {
+        filter: drop-shadow(0 0 3px hsla(var(--hue, 30), 100%, 50%, 0.6));
+    }
+    100% {
+        filter: drop-shadow(0 0 8px hsla(var(--hue, 30), 100%, 60%, 1));
+    }
+}
+
+/* Add slight horizontal drift */
+.ember-particle:nth-child(odd) {
+    animation: emberRise var(--duration, 8s) ease-out var(--delay, 0s) forwards,
+               emberDriftLeft calc(var(--duration, 8s) * 0.5) ease-in-out infinite alternate;
+}
+
+.ember-particle:nth-child(even) {
+    animation: emberRise var(--duration, 8s) ease-out var(--delay, 0s) forwards,
+               emberDriftRight calc(var(--duration, 8s) * 0.5) ease-in-out infinite alternate;
+}
+
+@keyframes emberDriftLeft {
+    0% { margin-left: 0; }
+    100% { margin-left: -20px; }
+}
+
+@keyframes emberDriftRight {
+    0% { margin-left: 0; }
+    100% { margin-left: 20px; }
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 600px) {
+    .home-hero {
+        padding: var(--spacing-4);
+    }
+    
+    .home-title {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .home-action-row {
+        flex-direction: column;
+        border-radius: var(--radius-lg);
+    }
+    
+    .home-start-btn {
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    
+    .home-dropdown-trigger {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        min-width: unset;
+        justify-content: center;
+    }
+}

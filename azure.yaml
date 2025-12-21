@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: presentation-coach
+metadata:
+  template: azd-init@1.18.1
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  presentationcoach:
+    project: ./
+    host: containerapp
+    language: python
+    docker:
+      path: ./Dockerfile
+      context: ./
+resources:
+  presentationcoach:
+    type: host.containerapp
+    port: 8015
