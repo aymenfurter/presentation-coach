@@ -20,6 +20,14 @@ from src.services.video_processing import VideoProcessingService
 from src.services.presentation_analysis import PresentationAnalysisService
 from src.services.voicelive_session import VoiceLiveSessionManager
 
+# Valid presentation types and their corresponding scenario file basenames.
+# These must stay in sync with /api/config.
+SCENARIO_FILE_BASENAMES = {
+    "investment_pitch": "investment-pitch",
+    "product_demo": "product-demo",
+    "team_update": "team-update",
+}
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -120,10 +128,15 @@ def get_config():
 @app.route("/api/scenarios/<presentation_type>", methods=["GET"])
 def get_scenario(presentation_type: str):
     """Get scenario configuration for a presentation type."""
+    # Validate and map the presentation type to a known-safe scenario basename.
+    if presentation_type not in SCENARIO_FILE_BASENAMES:
+        return jsonify({"error": f"Scenario not found: {presentation_type}"}), 404
+
+    scenario_basename = SCENARIO_FILE_BASENAMES[presentation_type]
     scenarios_path = Path(__file__).parent.parent.parent.parent / "data" / "scenarios"
 
-    role_play_file = scenarios_path / f"{presentation_type.replace('_', '-')}-role-play.prompt.yml"
-    evaluation_file = scenarios_path / f"{presentation_type.replace('_', '-')}-evaluation.prompt.yml"
+    role_play_file = scenarios_path / f"{scenario_basename}-role-play.prompt.yml"
+    evaluation_file = scenarios_path / f"{scenario_basename}-evaluation.prompt.yml"
 
     if not role_play_file.exists():
         return jsonify({"error": f"Scenario not found: {presentation_type}"}), 404
@@ -432,7 +445,7 @@ async def analyze_presentation(session_id: str):
 
     except Exception as e:
         logger.error(f"Analysis failed for session {session_id}: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal error occurred during analysis"}), 500
 
 
 @app.route("/api/sessions/<session_id>/analysis", methods=["GET"])
@@ -589,10 +602,8 @@ async def upload_and_analyze_video():
         })
 
     except Exception as e:
-        logger.error(f"Upload analysis failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Upload analysis failed: {e}", exc_info=True)
+        return jsonify({"error": "An internal error occurred during video analysis"}), 500
 
 
 @app.route("/api/test/sample-analysis", methods=["POST"])
@@ -729,10 +740,8 @@ async def analyze_sample_video():
         })
 
     except Exception as e:
-        logger.error(f"Sample analysis failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Sample analysis failed: {e}", exc_info=True)
+        return jsonify({"error": "An internal error occurred during sample analysis"}), 500
 
 
 @app.route("/api/sessions/<session_id>/video", methods=["GET"])
@@ -857,15 +866,18 @@ def websocket_voicelive(ws, session_id: str):
         return
 
     session = active_sessions[session_id]
+    presentation_type = session['presentation_type']
 
-    # Get scenario for this presentation type
-    scenarios_path = Path(__file__).parent.parent.parent.parent / "data" / "scenarios"
-    role_play_file = scenarios_path / f"{session['presentation_type'].replace('_', '-')}-role-play.prompt.yml"
-
+    # Validate presentation type against whitelist
     system_prompt = ""
-    if role_play_file.exists():
-        with open(role_play_file, "r") as f:
-            system_prompt = f.read()
+    if presentation_type in SCENARIO_FILE_BASENAMES:
+        scenario_basename = SCENARIO_FILE_BASENAMES[presentation_type]
+        scenarios_path = Path(__file__).parent.parent.parent.parent / "data" / "scenarios"
+        role_play_file = scenarios_path / f"{scenario_basename}-role-play.prompt.yml"
+
+        if role_play_file.exists():
+            with open(role_play_file, "r") as f:
+                system_prompt = f.read()
 
     logger.info(f"VoiceLive WebSocket connected for session {session_id}")
 
