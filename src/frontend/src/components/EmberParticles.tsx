@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface Particle {
   id: number;
@@ -17,27 +17,10 @@ interface EmberParticlesProps {
 
 export function EmberParticles({ active, intensity = 0.5 }: EmberParticlesProps) {
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [nextId, setNextId] = useState(0);
-
-  const createParticle = useCallback((): Particle => {
-    // Hue ranges from orange (30) to red (0) based on randomness
-    const hue = Math.random() * 40 + 10; // 10-50 (red to orange-yellow)
-    return {
-      id: nextId,
-      x: Math.random() * 100, // percentage across screen
-      size: Math.random() * 12 + 8, // 8-20px
-      duration: Math.random() * 4 + 6, // 6-10s to float up
-      delay: Math.random() * 0.5, // stagger start
-      hue,
-      opacity: Math.random() * 0.4 + 0.3, // 0.3-0.7
-    };
-  }, [nextId]);
+  const nextIdRef = useRef(0);
 
   useEffect(() => {
-    if (!active) {
-      setParticles([]);
-      return;
-    }
+    if (!active) return;
 
     // Spawn particles based on intensity
     const spawnRate = 200 + (1 - intensity) * 600; // 200-800ms between spawns
@@ -50,8 +33,17 @@ export function EmberParticles({ active, intensity = 0.5 }: EmberParticlesProps)
           return prev;
         }
         
-        const newParticle = createParticle();
-        setNextId(id => id + 1);
+        const id = nextIdRef.current++;
+        const hue = Math.random() * 40 + 10;
+        const newParticle: Particle = {
+          id,
+          x: Math.random() * 100,
+          size: Math.random() * 12 + 8,
+          duration: Math.random() * 4 + 6,
+          delay: Math.random() * 0.5,
+          hue,
+          opacity: Math.random() * 0.4 + 0.3,
+        };
         return [...prev, newParticle];
       });
     }, spawnRate);
@@ -65,9 +57,11 @@ export function EmberParticles({ active, intensity = 0.5 }: EmberParticlesProps)
       clearInterval(interval);
       clearInterval(cleanup);
     };
-  }, [active, intensity, createParticle]);
+  }, [active, intensity]);
 
-  if (!active || particles.length === 0) return null;
+  if (!active) return null;
+
+  if (!active) return null;
 
   return (
     <div className="ember-particles">

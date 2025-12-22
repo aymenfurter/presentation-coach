@@ -209,7 +209,15 @@ class PresentationAnalysisService:
 Determine if this frame primarily shows a presentation slide or something else.
 
 A frame IS a slide if: It shows PowerPoint/Keynote/Google Slides content, text, charts, diagrams.
-A frame is NOT a slide if: It primarily shows a person, live demo, or code/terminal."""
+A frame is NOT a slide if: It primarily shows a person, live demo, or code/terminal.
+
+IMPORTANT: When rating slide quality, use a score between 0 and 5 (inclusive), where:
+- 0: Completely unusable or unreadable slide
+- 1: Very poor quality, major issues
+- 2: Below average, significant improvements needed
+- 3: Average, acceptable but has room for improvement
+- 4: Good quality slide with minor issues
+- 5: Excellent, professional-quality slide"""
 
         response = await self.client.chat.completions.create(
             model=self.model,
@@ -234,7 +242,7 @@ A frame is NOT a slide if: It primarily shows a person, live demo, or code/termi
                             "is_slide": {"type": "boolean"},
                             "segment_type": {"type": "string", "enum": ["slide", "person", "demo", "other"]},
                             "slide_title": {"type": "string"},
-                            "quality_score": {"type": "integer"},
+                            "quality_score": {"type": "integer", "description": "Slide quality rating from 0 (worst) to 5 (best)"},
                             "improvements": {"type": "array", "items": {"type": "string"}},
                             "ocr_text": {"type": "string"},
                             "description": {"type": "string"}

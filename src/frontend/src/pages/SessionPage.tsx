@@ -38,6 +38,7 @@ export function SessionPage() {
   const [avatarVideoStream, setAvatarVideoStream] = useState<MediaStream | undefined>(undefined);
   const [phase, setPhase] = useState<SessionPhase>('conversation');
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
   
   // Refs
   const voiceLiveRef = useRef<VoiceLiveClient | null>(null);
@@ -46,6 +47,7 @@ export function SessionPage() {
   const screenStreamRef = useRef<MediaStream | null>(null);
   const aiMutedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startPresentationRef = useRef<() => void>(() => {});
 
   // Initialize session
   useEffect(() => {
@@ -72,7 +74,7 @@ export function SessionPage() {
         });
         
         voiceLiveRef.current.on('function_call', (data: { name: string; result: { muted: boolean } }) => {
-          if (data.name === 'mute_ai') startPresentation();
+          if (data.name === 'mute_ai') startPresentationRef.current();
         });
         
         voiceLiveRef.current.on('audio_started', () => setAiSpeaking(true));
@@ -140,10 +142,12 @@ export function SessionPage() {
       });
       
       screenStreamRef.current = stream;
+      setScreenStream(stream);
       
       // Handle user stopping share via browser UI
       stream.getVideoTracks()[0].onended = () => {
         screenStreamRef.current = null;
+        setScreenStream(null);
       };
       
       // Initialize and start recorders
@@ -159,6 +163,11 @@ export function SessionPage() {
       voiceLiveRef.current?.reconnectAvatar();
     }
   }
+  
+  // Keep ref in sync with function
+  useEffect(() => {
+    startPresentationRef.current = startPresentation;
+  });
 
   // Go to Q&A - stop recording, unmute AI
   async function goToQA() {
@@ -169,6 +178,7 @@ export function SessionPage() {
     // Stop screen share
     screenStreamRef.current?.getTracks().forEach(track => track.stop());
     screenStreamRef.current = null;
+    setScreenStream(null);
     
     // Unmute AI
     aiMutedRef.current = false;
@@ -276,7 +286,7 @@ export function SessionPage() {
 
       {/* Main content */}
       <div className="call-main">
-        <div className={`video-grid ${phase === 'presenting' && screenStreamRef.current ? 'with-screenshare' : ''}`}>
+        <div className={`video-grid ${phase === 'presenting' && screenStream ? 'with-screenshare' : ''}`}>
           {/* AI Avatar - show placeholder when presenting */}
           {phase === 'presenting' ? (
             <div className="avatar-panel avatar-offline">
@@ -294,8 +304,8 @@ export function SessionPage() {
           )}
           
           {/* Screen share */}
-          {phase === 'presenting' && screenStreamRef.current && (
-            <ScreenSharePanel stream={screenStreamRef.current} />
+          {phase === 'presenting' && screenStream && (
+            <ScreenSharePanel stream={screenStream} />
           )}
         </div>
         
