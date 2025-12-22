@@ -5,6 +5,7 @@ interface VideoPlayerProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   sessionId: string;
   isPlaying: boolean;
+  currentTime: number;
   totalDuration: number;
   onToggle: () => void;
   onPlay: () => void;
@@ -14,13 +15,13 @@ interface VideoPlayerProps {
 export function VideoPlayer({ 
   videoRef, 
   sessionId, 
-  isPlaying, 
+  isPlaying,
+  currentTime,
   totalDuration,
   onToggle,
   onPlay,
   onPause 
 }: VideoPlayerProps) {
-  const currentTime = videoRef.current?.currentTime ?? 0;
   const progress = totalDuration > 0 ? (currentTime * 1000 / totalDuration) * 100 : 0;
 
   return (

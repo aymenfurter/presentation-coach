@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAnalysis } from '../hooks/useAnalysis';
 import { formatTime, formatPresentationType } from '../utils/formatters';
@@ -26,8 +26,19 @@ export function AnalysisPage() {
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
   const [selectedSlide, setSelectedSlide] = useState<string | null>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
   
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Update currentTime from video
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    
+    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    return () => video.removeEventListener('timeupdate', handleTimeUpdate);
+  }, []);
 
   const handleSegmentClick = (segmentId: string) => {
     setSelectedSegment(segmentId);
@@ -158,6 +169,7 @@ export function AnalysisPage() {
             videoRef={videoRef}
             sessionId={sessionId!}
             isPlaying={videoPlaying}
+            currentTime={currentTime}
             totalDuration={analysis.total_duration_ms}
             onToggle={toggleVideo}
             onPlay={() => setVideoPlaying(true)}

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { formatTime } from '../utils/formatters';
 import type { TimelineSegment } from '../types';
 
@@ -12,7 +12,19 @@ interface TimelineProps {
 export function Timeline({ data, totalDuration, selectedSegment, onSegmentClick }: TimelineProps) {
   const [hoveredSegment, setHoveredSegment] = useState<TimelineSegment | null>(null);
   const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [containerWidth, setContainerWidth] = useState(320);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   function getSegmentWidth(segment: TimelineSegment): number {
     const duration = segment.end_time_ms - segment.start_time_ms;
@@ -107,7 +119,7 @@ export function Timeline({ data, totalDuration, selectedSegment, onSegmentClick 
         <div 
           className="timeline-hover-preview"
           style={{ 
-            left: `${Math.min(Math.max(hoverPosition.x, 80), containerRef.current ? containerRef.current.offsetWidth - 80 : 160)}px`,
+            left: `${Math.min(Math.max(hoverPosition.x, 80), containerWidth - 80)}px`,
             bottom: '70px'
           }}
         >
