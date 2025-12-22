@@ -87,14 +87,14 @@ def serve_static(path):
     safe_path = os.path.normpath(path).lstrip(os.sep)
     if safe_path.startswith('..') or os.path.isabs(path):
         return send_from_directory(app.static_folder, "index.html")
-    
+
     full_path = os.path.realpath(os.path.join(app.static_folder, safe_path))
     static_folder_real = os.path.realpath(app.static_folder)
-    
+
     # Ensure the resolved path is within the static folder
     if not full_path.startswith(static_folder_real + os.sep) and full_path != static_folder_real:
         return send_from_directory(app.static_folder, "index.html")
-    
+
     if os.path.exists(full_path) and os.path.isfile(full_path):
         return send_from_directory(app.static_folder, safe_path)
     return send_from_directory(app.static_folder, "index.html")
