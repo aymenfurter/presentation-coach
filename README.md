@@ -1,151 +1,67 @@
 <div align="center">
 
-# 🎯 Presentation Coach
+<img src="src/frontend/public/dart-logo.svg" width="100" height="100" alt="Presentation Coach" />
 
-<img src="src/frontend/public/dart-logo.svg" width="120" height="120" alt="Presentation Coach Logo" />
-
-### A multimodal AI assistant that sees, hears, and coaches you in real-time.
+### Practice your pitch with an AI coach that sees your slides and hears your voice.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Azure AI](https://img.shields.io/badge/Azure%20AI-Powered-0078D4)](https://azure.microsoft.com/en-us/solutions/ai/)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
-[![React](https://img.shields.io/badge/Frontend-React-61DAFB)](https://reactjs.org/)
-[![Azure Developer CLI](https://img.shields.io/badge/azd-Compatible-0078D4)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB)](https://reactjs.org/)
 
-[Features](#-features) • [Getting Started](#-getting-started) • [Deployment](#-deployment) • [License](#-license)
+[How it works](#how-it-works) · [Tech Stack](#tech-stack) · [Getting Started](#getting-started)
 
----
-
-<img src="fullpreview.png" alt="Presentation Coach Preview" width="90%" />
-
-<br/>
-
-<img src="demorun.gif" alt="Demo" width="90%" />
+<img src="fullpreview.png" alt="Presentation Coach" width="90%" />
 
 </div>
 
 ---
 
-## 📖 About
+## How it works
 
-**Presentation Coach** is a reference implementation demonstrating the power of multimodal AI. It acts as a virtual coach for startup founders, providing real-time feedback on their pitches.
+**Live practice:** Start a session and talk with an AI coach. When you're ready, share your screen and present. The coach listens silently, then you can ask questions or request feedback. Finally, get a detailed analysis of your performance.
 
-By combining **Azure Voice Live API** for low-latency speech interaction and **Azure Content Understanding** for visual analysis of slides, it creates a holistic coaching session that mimics a real human interaction.
+**Analyze a recording:** Upload a video of a past presentation and get the same analysis—pacing, slide quality, and actionable suggestions.
+
+### Analysis includes
+
+- **Pacing timeline** — See where you spoke too fast, too slow, or at a good pace
+- **Slide-by-slide scores** — Each slide gets a quality rating with specific improvements
+- **Checklist evaluation** — Did you cover the key points for your presentation type?
+- **Timestamped suggestions** — Click any feedback item to jump to that moment in the video
+
+<div align="center">
+<img src="demorun.gif" alt="Demo" width="85%" />
+</div>
 
 ---
 
-## ✨ Features
-
-<div align="center">
-
-| Feature | Description |
-|:-------:|-------------|
-| 🎙️ **Real-time Voice** | Low-latency speech-to-speech interaction using **Azure Voice Live API** |
-| 👁️ **Visual Understanding** | Analyzes your screen share and slides using **Azure Content Understanding** |
-| 🧠 **Smart Coaching** | **GPT-4.1** orchestrates the session with actionable feedback |
-| ⚡ **Live Feedback** | Instantaneous responses via WebSockets for fluid conversation |
-| 📊 **Structured Reports** | Generates detailed evaluation reports after every session |
-
-</div>
-
-### 🛠️ Tech Stack
-
-<div align="center">
+## Tech Stack
 
 | Layer | Technologies |
-|:-----:|--------------|
-| **AI Services** | Azure Voice Live API, Azure Content Understanding, Microsoft Foundry (GPT-4.1-mini) |
-| **Backend** | Python (Flask), WebSockets |
-| **Frontend** | React, Fluent UI, Vite |
-| **Infrastructure** | Azure Container Apps, Bicep, Azure Developer CLI (`azd`) |
+|-------|--------------|
+| Backend | Python, Flask, WebSockets |
+| Frontend | React, TypeScript, Fluent UI, Vite |
+| AI | Microsoft Foundry (GPT-4.1), Azure Voice Live API, Azure Content Understanding |
+| Infrastructure | Azure Container Apps, Bicep |
 
-</div>
+---
 
 ## Getting Started
 
-### Prerequisites
+> Requires Python 3.11+, Node.js 20+, FFmpeg, and an Azure subscription with access to Microsoft Foundry, Voice Live API, and Content Understanding.
 
-- **Azure Subscription** with access to:
-  - Microsoft Foundry (GPT-4.1 & GPT-4.1-mini)
-  - Azure Voice Live API
-  - Azure AI Foundry
-- **Development Tools**:
-  - Python 3.11+
-  - Node.js 20+
-  - FFmpeg
-  - [Azure Developer CLI (azd)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/aymenfurter/presentation-coach.git
-   cd presentation-coach
-   ```
-
-2. **Configure Environment**
-   Create a `.env` file in the root directory:
-
-   ```ini
-   AZURE_OPENAI_ENDPOINT=https://your-resource.cognitiveservices.azure.com/
-   AZURE_OPENAI_API_KEY=your-openai-api-key
-   MODEL_DEPLOYMENT_NAME=gpt-4o
-   ANALYSIS_MODEL_DEPLOYMENT_NAME=gpt-4.1-mini
-   AZURE_AI_RESOURCE_NAME=your-ai-resource-name
-   AZURE_AVATAR_CHARACTER=isabella
-   CONTENT_UNDERSTANDING_ENDPOINT=https://your-content-understanding-resource.openai.azure.com/
-   CONTENT_UNDERSTANDING_KEY=your-content-understanding-key
-   ```
-
-3. **Install Dependencies**
-
-   **System:**
-   ```bash
-   sudo apt-get update && sudo apt-get install -y nodejs npm ffmpeg
-   ```
-
-   **Backend:**
-   ```bash
-   cd src/backend
-   pip install -r requirements.txt
-   ```
-
-   **Frontend:**
-   ```bash
-   cd src/frontend
-   npm install
-   ```
-
-### Running the App
-
-Use the helper script to start both backend and frontend:
+**Run locally:**
 
 ```bash
-./scripts/start.sh
+git clone https://github.com/aymenfurter/presentation-coach.git
+cd presentation-coach
+cp .env.example .env   # Add your Azure credentials
+./scripts/start.sh     # Installs dependencies and starts the app
 ```
 
-Open your browser and navigate to: `http://localhost:8015`
+**Deploy to Azure** with the [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd):
 
-## Deployment
-
-This project is designed to be deployed to Azure using the Azure Developer CLI (`azd`).
-
-1. **Login to Azure**
-   ```bash
-   azd auth login
-   ```
-
-2. **Provision and Deploy**
-   ```bash
-   azd up
-   ```
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-<div align="center">
-  <sub>Built with Azure AI</sub>
-</div>
+```bash
+azd auth login
+azd up
+```
