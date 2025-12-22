@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB)](https://reactjs.org/)
 
 [How it works](#how-it-works) · [Tech Stack](#tech-stack) · [Getting Started](#getting-started)
 

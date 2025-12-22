@@ -33,23 +33,33 @@ export function HomePage() {
   const [logoHeat, setLogoHeat] = useState(0);
 
   useEffect(() => {
-    loadConfig();
-  }, []);
-
-  async function loadConfig() {
-    try {
-      const configData = await api.getConfig();
-      setConfig(configData);
-      if (configData.presentation_types.length > 0) {
-        mainDropdown.setSelected(configData.presentation_types[0]);
-        uploadDropdown.setSelected(configData.presentation_types[0]);
+    let cancelled = false;
+    
+    async function loadConfig() {
+      try {
+        const configData = await api.getConfig();
+        if (cancelled) return;
+        setConfig(configData);
+        if (configData.presentation_types.length > 0) {
+          mainDropdown.setSelected(configData.presentation_types[0]);
+          uploadDropdown.setSelected(configData.presentation_types[0]);
+        }
+      } catch (error) {
+        console.error('Failed to load config:', error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error('Failed to load config:', error);
-    } finally {
-      setLoading(false);
     }
-  }
+    
+    loadConfig();
+    
+    return () => {
+      cancelled = true;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleStartPractice() {
     if (!mainDropdown.selected) return;

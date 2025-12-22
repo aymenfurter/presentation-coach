@@ -29,6 +29,7 @@ export function SessionPage() {
   
   // State
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_connected, setConnected] = useState(false);
   const [userMuted, setUserMuted] = useState(false);
   const [transcripts, setTranscripts] = useState<TranscriptEntry[]>([]);
@@ -50,84 +51,65 @@ export function SessionPage() {
   useEffect(() => {
     if (!sessionId) return;
     
+    let mounted = true;
+    
+    async function initializeSession() {
+      try {
+        const session = await api.getSession(sessionId!);
+        if (!mounted) return;
+        setPresentationType(session.presentation_type);
+        
+        voiceLiveRef.current = new VoiceLiveClient(sessionId!);
+        
+        voiceLiveRef.current.on('connected', () => {
+          setConnected(true);
+          setLoading(false);
+        });
+        
+        voiceLiveRef.current.on('transcript', (entry: TranscriptEntry) => {
+          if (entry.speaker === 'assistant' && aiMutedRef.current) return;
+          setTranscripts(prev => [...prev, entry]);
+        });
+        
+        voiceLiveRef.current.on('function_call', (data: { name: string; result: { muted: boolean } }) => {
+          if (data.name === 'mute_ai') startPresentation();
+        });
+        
+        voiceLiveRef.current.on('audio_started', () => setAiSpeaking(true));
+        voiceLiveRef.current.on('audio_done', () => setAiSpeaking(false));
+        
+        voiceLiveRef.current.on('avatar_video_stream', (stream: MediaStream) => {
+          if (!aiMutedRef.current) setAvatarVideoStream(stream);
+        });
+        
+        voiceLiveRef.current.on('error', (error: Error) => {
+          console.error('VoiceLive error:', error);
+        });
+        
+        await voiceLiveRef.current.connect();
+        await voiceLiveRef.current.startRecording();
+        
+        audioRecorderRef.current = new AudioRecorder();
+      } catch (error) {
+        console.error('Failed to initialize session:', error);
+        if (mounted) setLoading(false);
+      }
+    }
+    
     initializeSession();
     
-    // Start timer
-    timerRef.current = setInterval(() => {
-      setElapsedTime(prev => prev + 1);
-    }, 1000);
+    const timer = setInterval(() => setElapsedTime(prev => prev + 1), 1000);
+    timerRef.current = timer;
     
     return () => {
-      cleanup();
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      mounted = false;
+      clearInterval(timer);
+      voiceLiveRef.current?.disconnect();
+      audioRecorderRef.current?.stop();
+      screenRecorderRef.current?.stop();
+      screenStreamRef.current?.getTracks().forEach(track => track.stop());
     };
   }, [sessionId]);
-
-  async function initializeSession() {
-    try {
-      // Get session details
-      const session = await api.getSession(sessionId!);
-      setPresentationType(session.presentation_type);
-      
-      // Initialize voice client
-      voiceLiveRef.current = new VoiceLiveClient(sessionId!);
-      
-      voiceLiveRef.current.on('connected', () => {
-        setConnected(true);
-        setLoading(false);
-      });
-      
-      voiceLiveRef.current.on('transcript', (entry: TranscriptEntry) => {
-        if (entry.speaker === 'assistant' && aiMutedRef.current) {
-          return;
-        }
-        setTranscripts(prev => [...prev, entry]);
-      });
-      
-      voiceLiveRef.current.on('function_call', (data: { name: string; result: { muted: boolean } }) => {
-        if (data.name === 'mute_ai') {
-          // AI requested to mute itself - user said they're ready
-          startPresentation();
-        }
-      });
-      
-      voiceLiveRef.current.on('audio_started', () => {
-        setAiSpeaking(true);
-      });
-      
-      voiceLiveRef.current.on('audio_done', () => {
-        setAiSpeaking(false);
-      });
-      
-      voiceLiveRef.current.on('avatar_video_stream', (stream: MediaStream) => {
-        if (aiMutedRef.current) return;
-        setAvatarVideoStream(stream);
-      });
-      
-      voiceLiveRef.current.on('error', (error: Error) => {
-        console.error('VoiceLive error:', error);
-      });
-      
-      await voiceLiveRef.current.connect();
-      await voiceLiveRef.current.startRecording();
-      
-      // Initialize audio recorder
-      audioRecorderRef.current = new AudioRecorder();
-      
-    } catch (error) {
-      console.error('Failed to initialize session:', error);
-      setLoading(false);
-    }
-  }
-
-  function cleanup() {
-    voiceLiveRef.current?.disconnect();
-    audioRecorderRef.current?.stop();
-    screenRecorderRef.current?.stop();
-    screenStreamRef.current?.getTracks().forEach(track => track.stop());
-  }
 
   // Toggle user microphone
   async function toggleMicrophone() {
@@ -232,7 +214,10 @@ export function SessionPage() {
 
   // End call
   function endCall() {
-    cleanup();
+    voiceLiveRef.current?.disconnect();
+    audioRecorderRef.current?.stop();
+    screenRecorderRef.current?.stop();
+    screenStreamRef.current?.getTracks().forEach(track => track.stop());
     navigate('/');
   }
 
