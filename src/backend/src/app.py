@@ -14,6 +14,7 @@ from typing import Any, Dict
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_sock import Sock
+from werkzeug.exceptions import NotFound
 
 from src.services.content_understanding import ContentUnderstandingService, ContentUnderstandingResult
 from src.services.video_processing import VideoProcessingService
@@ -82,22 +83,14 @@ def serve_index():
 @app.route("/<path:path>")
 def serve_static(path):
     """Serve static files."""
-    # Sanitize path to prevent path traversal attacks
-    # Normalize the path and ensure it doesn't escape the static folder
     safe_path = os.path.normpath(path).lstrip(os.sep)
     if safe_path.startswith('..') or os.path.isabs(path):
         return send_from_directory(app.static_folder, "index.html")
 
-    full_path = os.path.realpath(os.path.join(app.static_folder, safe_path))
-    static_folder_real = os.path.realpath(app.static_folder)
-
-    # Ensure the resolved path is within the static folder
-    if not full_path.startswith(static_folder_real + os.sep) and full_path != static_folder_real:
-        return send_from_directory(app.static_folder, "index.html")
-
-    if os.path.exists(full_path) and os.path.isfile(full_path):
+    try:
         return send_from_directory(app.static_folder, safe_path)
-    return send_from_directory(app.static_folder, "index.html")
+    except NotFound:
+        return send_from_directory(app.static_folder, "index.html")
 
 
 # ----- API Routes -----
