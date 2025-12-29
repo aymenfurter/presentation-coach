@@ -1,17 +1,31 @@
 <div align="center">
 
-<img src="src/frontend/public/dart-logo.svg" width="100" height="100" alt="Presentation Coach" />
+  <img src="src/frontend/public/dart-logo.svg" alt="Presentation Coach" style="width:100px; height:100px;" />
 
-### Practice your pitch with an AI coach that sees your slides and hears your voice.
+  <h3>Practice your pitch with an AI coach that sees your slides and hears your voice.</h3>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB)](https://reactjs.org/)
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Faymenfurter%2Fpresentation-coach%2Fmain%2Finfra%2Fdeployment.json)
+  <p style="margin: 10px 0 12px 0; line-height: 0;">
+    <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT"
+           src="https://img.shields.io/badge/License-MIT-yellow.svg"
+           style="height:27px; vertical-align:middle; display:inline-block;" /></a>
+    <a href="https://www.python.org/"><img alt="Python"
+           src="https://img.shields.io/badge/Python-3.11+-blue"
+           style="height:27px; vertical-align:middle; display:inline-block;" /></a>
+    <a href="https://reactjs.org/"><img alt="React"
+           src="https://img.shields.io/badge/React-19-61DAFB"
+           style="height:27px; vertical-align:middle; display:inline-block;" /></a>
+    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Faymenfurter%2Fpresentation-coach%2Fmain%2Finfra%2Fdeployment.json"><img alt="Deploy to Azure"
+           src="https://aka.ms/deploytoazurebutton"
+           style="height:27px; vertical-align:middle; display:inline-block;" /></a>
+  </p>
 
-[How it works](#how-it-works) · [Tech Stack](#tech-stack) · [Getting Started](#getting-started)
+  <p>
+    <a href="#how-it-works">How it works</a> ·
+    <a href="#tech-stack">Tech Stack</a> ·
+    <a href="#getting-started">Getting Started</a>
+  </p>
 
-<img src="fullpreview.png" alt="Presentation Coach" width="90%" />
+  <img src="fullpreview.png" alt="Presentation Coach" style="width:90%; max-width:1200px;" />
 
 </div>
 
