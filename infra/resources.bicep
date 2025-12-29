@@ -197,22 +197,6 @@ module presentationcoach 'br/public:avm/res/app/container-app:0.8.0' = {
     ingressTransport: 'http'
     scaleMinReplicas: 1
     scaleMaxReplicas: 10
-    secrets: {
-      secureList: [
-        {
-          name: 'ai-foundry-api-key'
-          value: aiFoundryResource.listKeys().key1
-        }
-        {
-          name: 'speech-api-key'
-          value: speechService.listKeys().key1
-        }
-        {
-          name: 'content-understanding-key'
-          value: useContentUnderstanding && contentUnderstandingService != null ? contentUnderstandingService!.listKeys().key1 : ''
-        }
-      ]
-    }
     containers: [
       {
         image: presentationcoachFetchLatestImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
@@ -235,10 +219,6 @@ module presentationcoach 'br/public:avm/res/app/container-app:0.8.0' = {
             value: aiFoundryResource.properties.endpoint
           }
           {
-            name: 'AZURE_OPENAI_API_KEY'
-            secretRef: 'ai-foundry-api-key'
-          }
-          {
             name: 'PROJECT_ENDPOINT'
             value: '${aiFoundryResource.properties.endpoint}api/projects/default-project'
           }
@@ -249,10 +229,6 @@ module presentationcoach 'br/public:avm/res/app/container-app:0.8.0' = {
           {
             name: 'ANALYSIS_MODEL_DEPLOYMENT_NAME'
             value: 'gpt-4.1-mini'
-          }
-          {
-            name: 'AZURE_SPEECH_KEY'
-            secretRef: 'speech-api-key'
           }
           {
             name: 'AZURE_SPEECH_REGION'
@@ -269,10 +245,6 @@ module presentationcoach 'br/public:avm/res/app/container-app:0.8.0' = {
           {
             name: 'CONTENT_UNDERSTANDING_ENDPOINT'
             value: useContentUnderstanding && contentUnderstandingService != null ? contentUnderstandingService!.properties.endpoint : ''
-          }
-          {
-            name: 'CONTENT_UNDERSTANDING_KEY'
-            secretRef: 'content-understanding-key'
           }
           {
             name: 'SUBSCRIPTION_ID'

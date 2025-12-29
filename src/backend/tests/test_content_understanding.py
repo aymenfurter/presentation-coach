@@ -94,13 +94,14 @@ class TestAzureContentUnderstandingClient:
         return AzureContentUnderstandingClient(
             endpoint="https://test.endpoint.com/",
             api_version="2024-12-01-preview",
-            subscription_key="test-key",
+            credential=MagicMock(),
         )
 
     def test_client_initialization(self, client):
         """Test client initializes correctly."""
         assert client._endpoint == "https://test.endpoint.com"
         assert client._api_version == "2024-12-01-preview"
+        assert client._credential is not None
 
     def test_get_analyzer_url(self, client):
         """Test analyzer URL construction."""
@@ -314,7 +315,7 @@ async def test_analyze_video_with_combined_webm():
 
     # This test requires real Azure credentials, so we skip in CI
     import os
-    if os.getenv("CI") or os.getenv("AZURE_OPENAI_API_KEY") == "test-key":
+    if os.getenv("CI") or "test.openai.azure.com" in os.getenv("AZURE_OPENAI_ENDPOINT", ""):
         pytest.skip("Skipping integration test in CI environment")
 
     service = ContentUnderstandingService()

@@ -69,7 +69,7 @@ def get_media_folder() -> str:
 
 
 # Initialize Flask app
-app = Flask(__name__, static_folder=get_static_folder(), static_url_path="")
+app = Flask(__name__, static_folder=get_static_folder())
 CORS(app)
 sock = Sock(app)
 

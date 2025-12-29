@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import requests
+from azure.core.credentials import TokenCredential
+from azure.identity import DefaultAzureCredential
 
 from src.config import config
 
@@ -46,15 +48,24 @@ class AzureContentUnderstandingClient:
         self,
         endpoint: str,
         api_version: str,
-        subscription_key: str,
+        credential: TokenCredential,
         x_ms_useragent: str = "presentation-coach",
     ):
         self._endpoint = endpoint.rstrip("/")
         self._api_version = api_version
+        self._credential = credential
         self._headers = {
-            "Ocp-Apim-Subscription-Key": subscription_key,
             "x-ms-useragent": x_ms_useragent,
         }
+
+    def _get_token(self) -> str:
+        token = self._credential.get_token("https://cognitiveservices.azure.com/.default")
+        return token.token
+
+    def _get_headers(self) -> Dict[str, str]:
+        headers = self._headers.copy()
+        headers["Authorization"] = f"Bearer {self._get_token()}"
+        return headers
 
     def _get_analyzer_url(self, analyzer_id: str) -> str:
         return f"{self._endpoint}/contentunderstanding/analyzers/{analyzer_id}?api-version={self._api_version}"
@@ -73,7 +84,7 @@ class AzureContentUnderstandingClient:
 
         response = requests.put(
             url=self._get_analyzer_url(analyzer_id),
-            headers={"Content-Type": "application/json", **self._headers},
+            headers={"Content-Type": "application/json", **self._get_headers()},
             json=template,
         )
         response.raise_for_status()
@@ -82,7 +93,7 @@ class AzureContentUnderstandingClient:
 
     def delete_analyzer(self, analyzer_id: str) -> None:
         """Delete an analyzer."""
-        response = requests.delete(self._get_analyzer_url(analyzer_id), headers=self._headers)
+        response = requests.delete(self._get_analyzer_url(analyzer_id), headers=self._get_headers())
         response.raise_for_status()
         logger.info(f"Analyzer {analyzer_id} deleted")
 
@@ -90,7 +101,7 @@ class AzureContentUnderstandingClient:
         """Begin analysis of video data."""
         response = requests.post(
             url=self._get_analyze_url(analyzer_id),
-            headers={"Content-Type": "application/octet-stream", **self._headers},
+            headers={"Content-Type": "application/octet-stream", **self._get_headers()},
             data=file_data,
         )
         response.raise_for_status()
@@ -108,7 +119,7 @@ class AzureContentUnderstandingClient:
         start_time = time.time()
 
         while (elapsed := time.time() - start_time) < timeout_seconds:
-            result = requests.get(operation_location, headers=self._headers).json()
+            result = requests.get(operation_location, headers=self._get_headers()).json()
             status = result.get("status", "").lower()
 
             if status == "succeeded":
@@ -131,7 +142,6 @@ class ContentUnderstandingService:
 
     def __init__(self):
         self.endpoint = config["content_understanding_endpoint"]
-        self.api_key = config["content_understanding_key"]
         self._client: Optional[AzureContentUnderstandingClient] = None
 
     @property
@@ -141,7 +151,7 @@ class ContentUnderstandingService:
             self._client = AzureContentUnderstandingClient(
                 endpoint=self.endpoint,
                 api_version=self.API_VERSION,
-                subscription_key=self.api_key,
+                credential=DefaultAzureCredential(),
             )
         return self._client
 
