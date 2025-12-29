@@ -646,12 +646,7 @@
                                         "targetPort": 8015,
                                         "transport": "http"
                                     },
-                                    "secrets": [
-                                        {
-                                            "name": "speech-api-key",
-                                            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('speechServiceName')), '2024-10-01').key1]"
-                                        }
-                                    ]
+                                    "secrets": []
                                 },
                                 "template": {
                                     "containers": [
@@ -682,10 +677,6 @@
                                                 {
                                                     "name": "ANALYSIS_MODEL_DEPLOYMENT_NAME",
                                                     "value": "[parameters('analysisModelName')]"
-                                                },
-                                                {
-                                                    "name": "AZURE_SPEECH_KEY",
-                                                    "secretRef": "speech-api-key"
                                                 },
                                                 {
                                                     "name": "AZURE_SPEECH_REGION",
