@@ -13,9 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Set environment variables before importing modules that use config
 os.environ.setdefault("AZURE_OPENAI_ENDPOINT", "https://test.openai.azure.com")
-os.environ.setdefault("AZURE_OPENAI_API_KEY", "test-key")
 os.environ.setdefault("CONTENT_UNDERSTANDING_ENDPOINT", "https://test.openai.azure.com")
-os.environ.setdefault("CONTENT_UNDERSTANDING_KEY", "test-key")
 os.environ.setdefault("AZURE_AI_RESOURCE_NAME", "test-resource")
 
 
@@ -32,7 +30,6 @@ def mock_config():
         "port": 8000,
         "host": "0.0.0.0",
         "azure_openai_endpoint": "https://test.openai.azure.com",
-        "azure_openai_api_key": "test-api-key",
         "model_deployment_name": "gpt-4o",
         "analysis_model_deployment_name": "gpt-4o-mini",
         "subscription_id": "test-subscription",
@@ -46,7 +43,6 @@ def mock_config():
         "azure_avatar_character": "isabella",
         "azure_avatar_style": "casual-sitting",
         "content_understanding_endpoint": "https://test.openai.azure.com",
-        "content_understanding_key": "test-key",
     }
 
 

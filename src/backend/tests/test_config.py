@@ -28,7 +28,6 @@ class TestConfig:
         """Test that config reads values from environment variables."""
         env_vars = {
             "AZURE_OPENAI_ENDPOINT": "https://custom.endpoint.com",
-            "AZURE_OPENAI_API_KEY": "custom-key",
             "MODEL_DEPLOYMENT_NAME": "custom-model",
         }
 
@@ -40,7 +39,6 @@ class TestConfig:
             cfg = config_module.Config()
 
             assert cfg["azure_openai_endpoint"] == "https://custom.endpoint.com"
-            assert cfg["azure_openai_api_key"] == "custom-key"
             assert cfg["model_deployment_name"] == "custom-model"
 
     def test_config_getitem(self):
@@ -82,15 +80,12 @@ class TestConfig:
 
         # Just verify these keys exist and are strings
         assert "content_understanding_endpoint" in cfg.as_dict
-        assert "content_understanding_key" in cfg.as_dict
 
     def test_content_understanding_explicit(self):
         """Test explicit content understanding settings override fallback."""
         env_vars = {
             "AZURE_OPENAI_ENDPOINT": "https://openai.endpoint.com",
-            "AZURE_OPENAI_API_KEY": "openai-key",
             "CONTENT_UNDERSTANDING_ENDPOINT": "https://cu.endpoint.com",
-            "CONTENT_UNDERSTANDING_KEY": "cu-key",
         }
 
         with patch.dict(os.environ, env_vars, clear=False):
@@ -101,7 +96,6 @@ class TestConfig:
             cfg = config_module.Config()
 
             assert cfg["content_understanding_endpoint"] == "https://cu.endpoint.com"
-            assert cfg["content_understanding_key"] == "cu-key"
 
     def test_default_constants(self):
         """Test that default constants are correctly defined."""

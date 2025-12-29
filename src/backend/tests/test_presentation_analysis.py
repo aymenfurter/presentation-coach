@@ -108,7 +108,9 @@ class TestPresentationAnalysisService:
     @pytest.fixture
     def service(self):
         """Create a PresentationAnalysisService with mocked client."""
-        with patch("src.services.presentation_analysis.AsyncAzureOpenAI"):
+        with patch("src.services.presentation_analysis.AsyncAzureOpenAI"), \
+             patch("src.services.presentation_analysis.DefaultAzureCredential"), \
+             patch("src.services.presentation_analysis.get_bearer_token_provider"):
             service = PresentationAnalysisService()
             return service
 

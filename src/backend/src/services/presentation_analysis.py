@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from openai import AsyncAzureOpenAI
 
 from src.config import config
@@ -100,8 +101,11 @@ class PresentationAnalysisService:
     }
 
     def __init__(self):
+        token_provider = get_bearer_token_provider(
+            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+        )
         self.client = AsyncAzureOpenAI(
-            api_key=config["azure_openai_api_key"],
+            azure_ad_token_provider=token_provider,
             api_version=config["api_version"],
             azure_endpoint=config["azure_openai_endpoint"]
         )

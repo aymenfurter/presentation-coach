@@ -25,7 +25,6 @@ class Config:
         result: Dict[str, Any] = {
             # Azure OpenAI
             "azure_openai_endpoint": os.getenv("AZURE_OPENAI_ENDPOINT", ""),
-            "azure_openai_api_key": os.getenv("AZURE_OPENAI_API_KEY", ""),
             "model_deployment_name": os.getenv("MODEL_DEPLOYMENT_NAME", DEFAULT_MODEL),
             "analysis_model_deployment_name": os.getenv("ANALYSIS_MODEL_DEPLOYMENT_NAME", DEFAULT_ANALYSIS_MODEL),
 
@@ -37,10 +36,9 @@ class Config:
                 "CONTENT_UNDERSTANDING_ENDPOINT",
                 os.getenv("AZURE_OPENAI_ENDPOINT", "")
             ),
-            "content_understanding_key": os.getenv(
-                "CONTENT_UNDERSTANDING_KEY",
-                os.getenv("AZURE_OPENAI_API_KEY", "")
-            ),
+
+            # Azure Client ID (for managed identity)
+            "azure_client_id": os.getenv("AZURE_CLIENT_ID", ""),
         }
         return result
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "18309421154071761747"
+      "templateHash": "8555923281526686779"
     }
   },
   "parameters": {
@@ -120,7 +120,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "6221322342972846301"
+              "templateHash": "6162208744804675728"
             }
           },
           "parameters": {
@@ -8227,24 +8227,6 @@
                   "scaleMaxReplicas": {
                     "value": 10
                   },
-                  "secrets": {
-                    "value": {
-                      "secureList": [
-                        {
-                          "name": "ai-foundry-api-key",
-                          "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('aifoundry-pcoach-{0}', variables('resourceToken'))), '2024-10-01').key1]"
-                        },
-                        {
-                          "name": "speech-api-key",
-                          "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('speech-pcoach-{0}', variables('resourceToken'))), '2024-10-01').key1]"
-                        },
-                        {
-                          "name": "content-understanding-key",
-                          "value": "[if(and(parameters('useContentUnderstanding'), not(equals(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}pcoach-{1}', variables('abbrs').cognitiveServicesContentUnderstanding, variables('resourceToken'))), '2024-10-01', 'full'), null()))), listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('{0}pcoach-{1}', variables('abbrs').cognitiveServicesContentUnderstanding, variables('resourceToken'))), '2024-10-01').key1, '')]"
-                        }
-                      ]
-                    }
-                  },
                   "containers": {
                     "value": [
                       {
@@ -8268,10 +8250,6 @@
                             "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', format('aifoundry-pcoach-{0}', variables('resourceToken'))), '2024-10-01').endpoint]"
                           },
                           {
-                            "name": "AZURE_OPENAI_API_KEY",
-                            "secretRef": "ai-foundry-api-key"
-                          },
-                          {
                             "name": "PROJECT_ENDPOINT",
                             "value": "[format('{0}api/projects/default-project', reference(resourceId('Microsoft.CognitiveServices/accounts', format('aifoundry-pcoach-{0}', variables('resourceToken'))), '2024-10-01').endpoint)]"
                           },
@@ -8282,10 +8260,6 @@
                           {
                             "name": "ANALYSIS_MODEL_DEPLOYMENT_NAME",
                             "value": "gpt-4.1-mini"
-                          },
-                          {
-                            "name": "AZURE_SPEECH_KEY",
-                            "secretRef": "speech-api-key"
                           },
                           {
                             "name": "AZURE_SPEECH_REGION",
@@ -8302,10 +8276,6 @@
                           {
                             "name": "CONTENT_UNDERSTANDING_ENDPOINT",
                             "value": "[if(and(parameters('useContentUnderstanding'), not(equals(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}pcoach-{1}', variables('abbrs').cognitiveServicesContentUnderstanding, variables('resourceToken'))), '2024-10-01', 'full'), null()))), reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}pcoach-{1}', variables('abbrs').cognitiveServicesContentUnderstanding, variables('resourceToken'))), '2024-10-01').endpoint, '')]"
-                          },
-                          {
-                            "name": "CONTENT_UNDERSTANDING_KEY",
-                            "secretRef": "content-understanding-key"
                           },
                           {
                             "name": "SUBSCRIPTION_ID",
@@ -9273,8 +9243,7 @@
                 "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}pcoach-{1}', variables('abbrs').cognitiveServicesContentUnderstanding, variables('resourceToken')))]",
                 "[resourceId('Microsoft.Resources/deployments', 'monitoring')]",
                 "[resourceId('Microsoft.Resources/deployments', 'presentationcoach-fetch-image')]",
-                "[resourceId('Microsoft.Resources/deployments', 'presentationcoachidentity')]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', format('speech-pcoach-{0}', variables('resourceToken')))]"
+                "[resourceId('Microsoft.Resources/deployments', 'presentationcoachidentity')]"
               ]
             }
           ],

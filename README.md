@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB)](https://reactjs.org/)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Faymenfurter%2Fpresentation-coach%2Fmain%2Finfra%2Fdeployment.json)
 
 [How it works](#how-it-works) · [Tech Stack](#tech-stack) · [Getting Started](#getting-started)
 
@@ -50,7 +51,13 @@
 
 > Requires Python 3.11+, Node.js 20+, FFmpeg, and an Azure subscription with access to Microsoft Foundry and Content Understanding.
 
-**Run locally:**
+### One-click deployment
+
+Click the button below to deploy directly to Azure:
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Faymenfurter%2Fpresentation-coach%2Fmain%2Finfra%2Fdeployment.json)
+
+### Run locally
 
 ```bash
 git clone https://github.com/aymenfurter/presentation-coach.git
@@ -59,7 +66,7 @@ cp .env.example .env   # Add your Azure credentials
 ./scripts/start.sh     # Installs dependencies and starts the app
 ```
 
-**Deploy to Azure** with the [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd):
+### Deploy with Azure Developer CLI
 
 ```bash
 azd auth login

@@ -14,7 +14,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Set environment variables before importing app
 os.environ["AZURE_OPENAI_ENDPOINT"] = "https://test.openai.azure.com"
-os.environ["AZURE_OPENAI_API_KEY"] = "test-key"
 
 
 class TestFlaskApp:
