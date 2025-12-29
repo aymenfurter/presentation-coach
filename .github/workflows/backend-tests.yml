@@ -19,7 +19,6 @@ jobs:
       AZURE_OPENAI_API_KEY: "test-key"
       CONTENT_UNDERSTANDING_ENDPOINT: "https://test.openai.azure.com"
       CONTENT_UNDERSTANDING_KEY: "test-key"
-      AZURE_AI_RESOURCE_NAME: "test-resource"
 
     steps:
       - name: Checkout code

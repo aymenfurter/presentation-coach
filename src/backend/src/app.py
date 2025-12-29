@@ -782,7 +782,7 @@ def get_welcome_video():
     """Serve the welcome video."""
     media_folder = get_media_folder()
     video_path = os.path.join(media_folder, "welcome.mp4")
-    
+
     if os.path.exists(video_path):
         return send_from_directory(
             media_folder,
@@ -799,7 +799,7 @@ def get_review_video():
     """Serve the review video."""
     media_folder = get_media_folder()
     video_path = os.path.join(media_folder, "review.mp4")
-    
+
     if os.path.exists(video_path):
         return send_from_directory(
             media_folder,

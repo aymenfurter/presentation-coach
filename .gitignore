@@ -107,6 +107,10 @@ desktop.ini
 *.mov
 *.mkv
 
+# Allow specific media files needed for the app
+!media/welcome.mp4
+!media/review.mp4
+
 # Temporary files
 tmp/
 temp/
