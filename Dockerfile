@@ -18,6 +18,11 @@ RUN npm run build
 # Stage 2: Production image
 FROM python:3.11-slim
 
+# Labels for GitHub Container Registry (enables GITHUB_TOKEN permissions)
+LABEL org.opencontainers.image.source=https://github.com/aymenfurter/presentation-coach
+LABEL org.opencontainers.image.description="AI-powered presentation coaching tool using Azure AI services"
+LABEL org.opencontainers.image.licenses=MIT
+
 # Install ffmpeg and other system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
