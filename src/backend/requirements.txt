@@ -8,7 +8,6 @@ flask-sock>=0.7.0
 # Azure Services
 azure-identity>=1.15.0
 azure-ai-contentsafety>=1.0.0
-azure-ai-voicelive[aiohttp]>=1.0.0
 azure-core>=1.25.0
 openai>=1.30.0
 requests>=2.31.0

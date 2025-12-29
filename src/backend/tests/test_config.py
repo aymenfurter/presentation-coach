@@ -109,10 +109,8 @@ class TestConfig:
             DEFAULT_MODEL,
             DEFAULT_ANALYSIS_MODEL,
             DEFAULT_API_VERSION,
-            DEFAULT_VOICE_NAME,
         )
 
         assert DEFAULT_MODEL == "gpt-4o"
         assert DEFAULT_ANALYSIS_MODEL == "gpt-4o-mini"
         assert DEFAULT_API_VERSION == "2024-12-01-preview"
-        assert "en-US" in DEFAULT_VOICE_NAME

@@ -18,7 +18,7 @@
 
 ## How it works
 
-**Live practice:** Start a session and talk with an AI coach. When you're ready, share your screen and present. The coach listens silently, then you can ask questions or request feedback. Finally, get a detailed analysis of your performance.
+**Live practice:** Start a session and watch a welcome video from your AI coach. When you're ready, share your screen and present. After you finish, watch a brief review video, then get a detailed analysis of your performance.
 
 **Analyze a recording:** Upload a video of a past presentation and get the same analysis—pacing, slide quality, and actionable suggestions.
 
@@ -41,14 +41,14 @@
 |-------|--------------|
 | Backend | Python, Flask, WebSockets |
 | Frontend | React, TypeScript, Fluent UI, Vite |
-| AI | Microsoft Foundry (GPT-4.1), Azure Voice Live API, Azure Content Understanding |
+| AI | Microsoft Foundry (GPT-4.1), Azure Content Understanding |
 | Infrastructure | Azure Container Apps, Bicep |
 
 ---
 
 ## Getting Started
 
-> Requires Python 3.11+, Node.js 20+, FFmpeg, and an Azure subscription with access to Microsoft Foundry, Voice Live API, and Content Understanding.
+> Requires Python 3.11+, Node.js 20+, FFmpeg, and an Azure subscription with access to Microsoft Foundry and Content Understanding.
 
 **Run locally:**
 

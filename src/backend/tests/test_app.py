@@ -97,7 +97,6 @@ class TestFlaskApp:
         data = response.get_json()
         assert data["id"] == session_id
         assert "status" in data
-        assert "muted" in data
 
     def test_get_session_not_found(self, client):
         """Test getting nonexistent session."""
@@ -106,31 +105,6 @@ class TestFlaskApp:
         assert response.status_code == 404
         data = response.get_json()
         assert "error" in data
-
-    def test_set_mute_status(self, client):
-        """Test setting mute status."""
-        # Create session first
-        create_response = client.post("/api/sessions", json={})
-        session_id = create_response.get_json()["session_id"]
-
-        # Set mute
-        response = client.post(
-            f"/api/sessions/{session_id}/mute",
-            json={"muted": True}
-        )
-
-        assert response.status_code == 200
-        data = response.get_json()
-        assert data["muted"] is True
-
-    def test_set_mute_status_not_found(self, client):
-        """Test setting mute status for nonexistent session."""
-        response = client.post(
-            "/api/sessions/nonexistent/mute",
-            json={"muted": True}
-        )
-
-        assert response.status_code == 404
 
     def test_complete_session(self, client):
         """Test completing a session."""
@@ -244,6 +218,36 @@ class TestStaticRoutes:
         assert response.status_code in [200, 404, 500]
 
 
+class TestStaticMediaRoutes:
+    """Test cases for static media serving."""
+
+    @pytest.fixture
+    def app(self):
+        """Create a Flask test client with static folder."""
+        with patch("src.services.video_processing.VideoProcessingService.require_ffmpeg"):
+            from src.app import app
+            app.config["TESTING"] = True
+            return app
+
+    @pytest.fixture
+    def client(self, app):
+        """Create a test client."""
+        with app.test_client() as client:
+            yield client
+
+    def test_get_welcome_video(self, client):
+        """Test getting welcome video."""
+        response = client.get("/api/media/welcome")
+        # Will return 200 if media exists, 404 otherwise
+        assert response.status_code in [200, 404]
+
+    def test_get_review_video(self, client):
+        """Test getting review video."""
+        response = client.get("/api/media/review")
+        # Will return 200 if media exists, 404 otherwise
+        assert response.status_code in [200, 404]
+
+
 class TestSessionManagement:
     """Test session lifecycle and management."""
 
@@ -274,14 +278,6 @@ class TestSessionManagement:
         response = client.get(f"/api/sessions/{session_id}")
         assert response.status_code == 200
         assert response.get_json()["status"] == "created"
-
-        # Mute
-        response = client.post(f"/api/sessions/{session_id}/mute", json={"muted": True})
-        assert response.status_code == 200
-
-        # Check mute status
-        response = client.get(f"/api/sessions/{session_id}")
-        assert response.get_json()["muted"] is True
 
         # Complete
         response = client.post(f"/api/sessions/{session_id}/complete")

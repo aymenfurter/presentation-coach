@@ -4,24 +4,20 @@ import {
   Mic24Regular,
   MicOff24Regular,
   Presenter24Regular,
-  PeopleAudience24Regular,
   DataTrending24Regular,
   CallEnd24Regular,
   Record24Regular,
+  Play24Regular,
 } from '@fluentui/react-icons';
-import { AvatarPanel } from '../components/AvatarPanel';
 import { ScreenSharePanel } from '../components/ScreenSharePanel';
-import { TranscriptPanel } from '../components/TranscriptPanel';
 import { DartLogoStatic } from '../components/DartLogo';
 import { api } from '../services/api';
-import { VoiceLiveClient } from '../services/voiceLiveClient';
 import { AudioRecorder } from '../services/audioRecorder';
 import { ScreenRecorder } from '../services/screenRecorder';
 import { formatTimeSeconds, formatPresentationType } from '../utils/formatters';
-import type { TranscriptEntry } from '../types';
 
 // Session phases
-type SessionPhase = 'conversation' | 'presenting' | 'qa';
+type SessionPhase = 'welcome' | 'presenting' | 'review';
 
 export function SessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -29,25 +25,21 @@ export function SessionPage() {
   
   // State
   const [loading, setLoading] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_connected, setConnected] = useState(false);
   const [userMuted, setUserMuted] = useState(false);
-  const [transcripts, setTranscripts] = useState<TranscriptEntry[]>([]);
   const [presentationType, setPresentationType] = useState<string>('');
-  const [aiSpeaking, setAiSpeaking] = useState(false);
-  const [avatarVideoStream, setAvatarVideoStream] = useState<MediaStream | undefined>(undefined);
-  const [phase, setPhase] = useState<SessionPhase>('conversation');
+  const [phase, setPhase] = useState<SessionPhase>('welcome');
   const [elapsedTime, setElapsedTime] = useState(0);
   const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [welcomeVideoEnded, setWelcomeVideoEnded] = useState(false);
+  const [reviewVideoEnded, setReviewVideoEnded] = useState(false);
   
   // Refs
-  const voiceLiveRef = useRef<VoiceLiveClient | null>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const screenRecorderRef = useRef<ScreenRecorder | null>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
-  const aiMutedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startPresentationRef = useRef<() => void>(() => {});
+  const welcomeVideoRef = useRef<HTMLVideoElement>(null);
+  const reviewVideoRef = useRef<HTMLVideoElement>(null);
 
   // Initialize session
   useEffect(() => {
@@ -61,37 +53,10 @@ export function SessionPage() {
         if (!mounted) return;
         setPresentationType(session.presentation_type);
         
-        voiceLiveRef.current = new VoiceLiveClient(sessionId!);
-        
-        voiceLiveRef.current.on('connected', () => {
-          setConnected(true);
-          setLoading(false);
-        });
-        
-        voiceLiveRef.current.on('transcript', (entry: TranscriptEntry) => {
-          if (entry.speaker === 'assistant' && aiMutedRef.current) return;
-          setTranscripts(prev => [...prev, entry]);
-        });
-        
-        voiceLiveRef.current.on('function_call', (data: { name: string; result: { muted: boolean } }) => {
-          if (data.name === 'mute_ai') startPresentationRef.current();
-        });
-        
-        voiceLiveRef.current.on('audio_started', () => setAiSpeaking(true));
-        voiceLiveRef.current.on('audio_done', () => setAiSpeaking(false));
-        
-        voiceLiveRef.current.on('avatar_video_stream', (stream: MediaStream) => {
-          if (!aiMutedRef.current) setAvatarVideoStream(stream);
-        });
-        
-        voiceLiveRef.current.on('error', (error: Error) => {
-          console.error('VoiceLive error:', error);
-        });
-        
-        await voiceLiveRef.current.connect();
-        await voiceLiveRef.current.startRecording();
-        
+        // Initialize audio recorder
         audioRecorderRef.current = new AudioRecorder();
+        
+        setLoading(false);
       } catch (error) {
         console.error('Failed to initialize session:', error);
         if (mounted) setLoading(false);
@@ -100,37 +65,42 @@ export function SessionPage() {
     
     initializeSession();
     
-    const timer = setInterval(() => setElapsedTime(prev => prev + 1), 1000);
-    timerRef.current = timer;
-    
     return () => {
       mounted = false;
-      clearInterval(timer);
-      voiceLiveRef.current?.disconnect();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
       audioRecorderRef.current?.stop();
       screenRecorderRef.current?.stop();
       screenStreamRef.current?.getTracks().forEach(track => track.stop());
     };
   }, [sessionId]);
 
+  // Handle welcome video ending
+  function handleWelcomeVideoEnded() {
+    setWelcomeVideoEnded(true);
+  }
+
+  // Handle review video ending
+  function handleReviewVideoEnded() {
+    setReviewVideoEnded(true);
+  }
+
   // Toggle user microphone
   async function toggleMicrophone() {
-    if (userMuted) {
-      await voiceLiveRef.current?.unmute();
-    } else {
-      await voiceLiveRef.current?.mute();
+    if (audioRecorderRef.current) {
+      if (userMuted) {
+        // Unmute - but don't start recording yet
+      } else {
+        // Mute
+      }
     }
     setUserMuted(!userMuted);
   }
 
-  // Start Presentation - mute AI, start screen share and recording
+  // Start Presentation - start screen share and recording
   async function startPresentation() {
     try {
-      // Mute the AI
-      aiMutedRef.current = true;
-      voiceLiveRef.current?.disconnectAvatar();
-      setAvatarVideoStream(undefined);
-      
       // Start screen sharing
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: { 
@@ -155,22 +125,23 @@ export function SessionPage() {
       await audioRecorderRef.current?.start();
       await screenRecorderRef.current.start();
       
+      // Start timer
+      timerRef.current = setInterval(() => setElapsedTime(prev => prev + 1), 1000);
+      
       setPhase('presenting');
     } catch (error) {
       console.error('Failed to start presentation:', error);
-      // Reset if screen share was cancelled
-      aiMutedRef.current = false;
-      voiceLiveRef.current?.reconnectAvatar();
     }
   }
-  
-  // Keep ref in sync with function
-  useEffect(() => {
-    startPresentationRef.current = startPresentation;
-  });
 
-  // Go to Q&A - stop recording, unmute AI
-  async function goToQA() {
+  // Go to Review phase - stop recording, show review video
+  async function goToReview() {
+    // Stop timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
     // Stop recording
     audioRecorderRef.current?.stop();
     screenRecorderRef.current?.stop();
@@ -180,12 +151,7 @@ export function SessionPage() {
     screenStreamRef.current = null;
     setScreenStream(null);
     
-    // Unmute AI
-    aiMutedRef.current = false;
-    voiceLiveRef.current?.reconnectAvatar();
-    voiceLiveRef.current?.sendText("The presentation is complete. Please ask me questions about my presentation or provide feedback.");
-    
-    setPhase('qa');
+    setPhase('review');
   }
 
   // Analyze - upload recordings and navigate to analysis
@@ -224,7 +190,9 @@ export function SessionPage() {
 
   // End call
   function endCall() {
-    voiceLiveRef.current?.disconnect();
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     audioRecorderRef.current?.stop();
     screenRecorderRef.current?.stop();
     screenStreamRef.current?.getTracks().forEach(track => track.stop());
@@ -237,10 +205,7 @@ export function SessionPage() {
         <div className="loader-ring" />
         <div className="session-loading-content">
           <p className="session-loading-text">
-            Connecting to your coach...
-          </p>
-          <p className="session-loading-subtext">
-            Please allow microphone access when prompted
+            Setting up your session...
           </p>
         </div>
       </div>
@@ -274,80 +239,121 @@ export function SessionPage() {
               Recording
             </span>
           )}
-          {phase === 'qa' && (
-            <span className="call-status-badge qa">Q&A</span>
+          {phase === 'review' && (
+            <span className="call-status-badge qa">Review</span>
           )}
-          <div className="call-timer">
-            <span className="live-dot" />
-            {formatTimeSeconds(elapsedTime)}
-          </div>
+          {phase === 'presenting' && (
+            <div className="call-timer">
+              <span className="live-dot" />
+              {formatTimeSeconds(elapsedTime)}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main content */}
       <div className="call-main">
         <div className={`video-grid ${phase === 'presenting' && screenStream ? 'with-screenshare' : ''}`}>
-          {/* AI Avatar - show placeholder when presenting */}
-          {phase === 'presenting' ? (
-            <div className="avatar-panel avatar-offline">
-              <div className="avatar-offline-content">
-                <Presenter24Regular />
-                <span className="avatar-offline-title">Presenting</span>
-                <span className="avatar-offline-subtitle">Your coach is listening</span>
-              </div>
+          
+          {/* Welcome Phase - Show welcome video */}
+          {phase === 'welcome' && (
+            <div className="avatar-panel video-panel">
+              <video
+                ref={welcomeVideoRef}
+                src="/api/media/welcome"
+                autoPlay
+                playsInline
+                onEnded={handleWelcomeVideoEnded}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              {welcomeVideoEnded && (
+                <div className="video-overlay">
+                  <div className="video-overlay-content">
+                    <Play24Regular />
+                    <span>Ready to present</span>
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <AvatarPanel 
-              speaking={aiSpeaking}
-              videoStream={avatarVideoStream}
-            />
           )}
           
-          {/* Screen share */}
-          {phase === 'presenting' && screenStream && (
-            <ScreenSharePanel stream={screenStream} />
+          {/* Presenting Phase - Show screen share */}
+          {phase === 'presenting' && (
+            <>
+              <div className="avatar-panel avatar-offline">
+                <div className="avatar-offline-content">
+                  <Presenter24Regular />
+                  <span className="avatar-offline-title">Presenting</span>
+                  <span className="avatar-offline-subtitle">Recording your presentation</span>
+                </div>
+              </div>
+              {screenStream && (
+                <ScreenSharePanel stream={screenStream} />
+              )}
+            </>
+          )}
+          
+          {/* Review Phase - Show review video */}
+          {phase === 'review' && (
+            <div className="avatar-panel video-panel">
+              <video
+                ref={reviewVideoRef}
+                src="/api/media/review"
+                autoPlay
+                playsInline
+                onEnded={handleReviewVideoEnded}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              {reviewVideoEnded && (
+                <div className="video-overlay">
+                  <div className="video-overlay-content">
+                    <DataTrending24Regular />
+                    <span>Ready to analyze</span>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
-        
-        {/* Transcript panel */}
-        <TranscriptPanel transcripts={transcripts} />
       </div>
 
       {/* Controls */}
       <div className="call-controls">
-        {/* Microphone */}
-        <button 
-          className={`control-button ${userMuted ? 'active' : 'secondary'}`}
-          onClick={toggleMicrophone}
-        >
-          <span className="icon">
-            {userMuted ? <MicOff24Regular /> : <Mic24Regular />}
-          </span>
-          <span className="label">{userMuted ? 'Unmute' : 'Mute'}</span>
-        </button>
+        {/* Microphone - only show during presenting */}
+        {phase === 'presenting' && (
+          <button 
+            className={`control-button ${userMuted ? 'active' : 'secondary'}`}
+            onClick={toggleMicrophone}
+          >
+            <span className="icon">
+              {userMuted ? <MicOff24Regular /> : <Mic24Regular />}
+            </span>
+            <span className="label">{userMuted ? 'Unmute' : 'Mute'}</span>
+          </button>
+        )}
         
         {/* Phase-specific buttons */}
-        {phase === 'conversation' && (
+        {phase === 'welcome' && welcomeVideoEnded && (
           <button 
             className="control-button primary"
             onClick={startPresentation}
           >
             <span className="icon"><Presenter24Regular /></span>
-            <span className="label">Present</span>
+            <span className="label">Start Presentation</span>
           </button>
         )}
         
         {phase === 'presenting' && (
           <button 
             className="control-button success"
-            onClick={goToQA}
+            onClick={goToReview}
           >
-            <span className="icon"><PeopleAudience24Regular /></span>
-            <span className="label">Q&A</span>
+            <span className="icon"><DataTrending24Regular /></span>
+            <span className="label">Finish</span>
           </button>
         )}
         
-        {phase === 'qa' && (
+        {phase === 'review' && reviewVideoEnded && (
           <button 
             className="control-button primary"
             onClick={analyzePresentation}

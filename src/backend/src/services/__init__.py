@@ -4,11 +4,9 @@
 from src.services.content_understanding import ContentUnderstandingService
 from src.services.video_processing import VideoProcessingService
 from src.services.presentation_analysis import PresentationAnalysisService
-from src.services.voicelive_session import VoiceLiveSessionManager
 
 __all__ = [
     "ContentUnderstandingService",
     "VideoProcessingService",
     "PresentationAnalysisService",
-    "VoiceLiveSessionManager"
 ]

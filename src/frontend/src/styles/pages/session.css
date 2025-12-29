@@ -645,3 +645,60 @@
     color: var(--color-text-muted);
     margin-top: var(--spacing-2);
 }
+
+/* ========================================
+   Video Panel - Static Videos
+   ======================================== */
+.video-panel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-panel video {
+    max-width: 512px;
+    max-height: 512px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.video-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-2xl);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.video-overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-4);
+    color: var(--color-text);
+    text-align: center;
+}
+
+.video-overlay-content svg {
+    width: 48px;
+    height: 48px;
+    color: var(--color-primary);
+}
+
+.video-overlay-content span {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
