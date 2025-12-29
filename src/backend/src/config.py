@@ -11,9 +11,6 @@ load_dotenv()
 DEFAULT_MODEL = "gpt-4o"
 DEFAULT_ANALYSIS_MODEL = "gpt-4o-mini"
 DEFAULT_API_VERSION = "2024-12-01-preview"
-DEFAULT_VOICE_NAME = "en-US-Ava:DragonHDLatestNeural"
-DEFAULT_VOICE_TYPE = "azure-standard"
-DEFAULT_AVATAR_CHARACTER = "isabella"
 
 
 class Config:
@@ -26,9 +23,6 @@ class Config:
     def _load_config(self) -> Dict[str, Any]:
         """Load configuration from environment variables with defaults."""
         result: Dict[str, Any] = {
-            # Azure AI Foundry (used by VoiceLive)
-            "azure_ai_resource_name": os.getenv("AZURE_AI_RESOURCE_NAME", ""),
-
             # Azure OpenAI
             "azure_openai_endpoint": os.getenv("AZURE_OPENAI_ENDPOINT", ""),
             "azure_openai_api_key": os.getenv("AZURE_OPENAI_API_KEY", ""),
@@ -37,11 +31,6 @@ class Config:
 
             # API Version
             "api_version": DEFAULT_API_VERSION,
-
-            # Voice Live API Settings
-            "azure_voice_name": os.getenv("AZURE_VOICE_NAME", DEFAULT_VOICE_NAME),
-            "azure_voice_type": os.getenv("AZURE_VOICE_TYPE", DEFAULT_VOICE_TYPE),
-            "azure_avatar_character": os.getenv("AZURE_AVATAR_CHARACTER", DEFAULT_AVATAR_CHARACTER),
 
             # Content Understanding
             "content_understanding_endpoint": os.getenv(

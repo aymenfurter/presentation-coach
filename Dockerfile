@@ -36,6 +36,9 @@ COPY src/backend/src/ ./src/
 # Copy scenario data
 COPY data/ ./data/
 
+# Copy media files (static videos)
+COPY media/ ./media/
+
 # Copy built frontend from builder stage to expected location
 COPY --from=frontend-builder /app/frontend/dist ./src/static/
 

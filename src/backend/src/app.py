@@ -19,7 +19,6 @@ from werkzeug.exceptions import NotFound
 from src.services.content_understanding import ContentUnderstandingService, ContentUnderstandingResult
 from src.services.video_processing import VideoProcessingService
 from src.services.presentation_analysis import PresentationAnalysisService
-from src.services.voicelive_session import VoiceLiveSessionManager
 
 # Valid presentation types and their corresponding scenario file basenames.
 # These must stay in sync with /api/config.
@@ -53,6 +52,22 @@ def get_static_folder() -> str:
     return str(Path(__file__).parent / "static")
 
 
+def get_media_folder() -> str:
+    """Get the media folder path for static videos."""
+    # Check for Docker location first
+    docker_path = Path("/app/media")
+    if docker_path.exists():
+        return str(docker_path)
+
+    # Development location (relative to this file)
+    dev_path = Path(__file__).parent.parent.parent.parent / "media"
+    if dev_path.exists():
+        return str(dev_path)
+
+    # Fallback
+    return str(Path(__file__).parent.parent.parent.parent / "media")
+
+
 # Initialize Flask app
 app = Flask(__name__, static_folder=get_static_folder(), static_url_path="")
 CORS(app)
@@ -65,7 +80,6 @@ VideoProcessingService.require_ffmpeg()
 content_understanding = ContentUnderstandingService()
 video_processing = VideoProcessingService()
 presentation_analysis = PresentationAnalysisService()
-session_manager = VoiceLiveSessionManager()
 
 # Store for active sessions and recordings
 active_sessions: Dict[str, Dict[str, Any]] = {}
@@ -206,25 +220,6 @@ def get_session(session_id: str):
         "muted": session["muted"],
         "transcript_count": len(session["transcripts"])
     })
-
-
-@app.route("/api/sessions/<session_id>/mute", methods=["POST"])
-def set_mute_status(session_id: str):
-    """Set the AI mute status for a session."""
-    if session_id not in active_sessions:
-        return jsonify({"error": "Session not found"}), 404
-
-    data = request.json or {}
-    muted = data.get("muted", False)
-
-    active_sessions[session_id]["muted"] = muted
-
-    # Notify the voice session manager to update VAD
-    session_manager.set_vad_enabled(session_id, not muted)
-
-    logger.info(f"Session {session_id} mute status: {muted}")
-
-    return jsonify({"muted": muted})
 
 
 @app.route("/api/sessions/<session_id>/complete", methods=["POST"])
@@ -780,6 +775,42 @@ def get_recording_video(session_id: str):
     return jsonify({"error": "Video not found"}), 404
 
 
+# ----- Static Video Routes -----
+
+@app.route("/api/media/welcome", methods=["GET"])
+def get_welcome_video():
+    """Serve the welcome video."""
+    media_folder = get_media_folder()
+    video_path = os.path.join(media_folder, "welcome.mp4")
+    
+    if os.path.exists(video_path):
+        return send_from_directory(
+            media_folder,
+            "welcome.mp4",
+            mimetype="video/mp4"
+        )
+    else:
+        logger.error(f"Welcome video not found at {video_path}")
+        return jsonify({"error": "Welcome video not found"}), 404
+
+
+@app.route("/api/media/review", methods=["GET"])
+def get_review_video():
+    """Serve the review video."""
+    media_folder = get_media_folder()
+    video_path = os.path.join(media_folder, "review.mp4")
+    
+    if os.path.exists(video_path):
+        return send_from_directory(
+            media_folder,
+            "review.mp4",
+            mimetype="video/mp4"
+        )
+    else:
+        logger.error(f"Review video not found at {video_path}")
+        return jsonify({"error": "Review video not found"}), 404
+
+
 # ----- WebSocket Routes -----
 
 @sock.route("/ws/session/<session_id>")
@@ -830,28 +861,6 @@ def websocket_session(ws, session_id: str):
                         "timestamp": data.get("timestamp", 0)
                     })
 
-                elif msg_type == "function_call":
-                    # Handle function calls from VoiceLive (e.g., mute)
-                    function_name = data.get("name")
-
-                    if function_name == "mute_ai":
-                        session["muted"] = True
-                        session_manager.set_vad_enabled(session_id, False)
-                        ws.send(json.dumps({
-                            "type": "function_response",
-                            "name": function_name,
-                            "result": {"muted": True}
-                        }))
-
-                    elif function_name == "unmute_ai":
-                        session["muted"] = False
-                        session_manager.set_vad_enabled(session_id, True)
-                        ws.send(json.dumps({
-                            "type": "function_response",
-                            "name": function_name,
-                            "result": {"muted": False}
-                        }))
-
                 elif msg_type == "ping":
                     ws.send(json.dumps({"type": "pong"}))
 
@@ -862,44 +871,6 @@ def websocket_session(ws, session_id: str):
         logger.error(f"WebSocket error for session {session_id}: {e}")
     finally:
         logger.info(f"WebSocket disconnected for session {session_id}")
-
-
-@sock.route("/ws/voicelive/<session_id>")
-def websocket_voicelive(ws, session_id: str):
-    """WebSocket proxy for VoiceLive API."""
-    if session_id not in active_sessions:
-        ws.send(json.dumps({"type": "error", "message": "Session not found"}))
-        return
-
-    session = active_sessions[session_id]
-    presentation_type = session['presentation_type']
-
-    # Validate presentation type against whitelist
-    system_prompt = ""
-    if presentation_type in SCENARIO_FILE_BASENAMES:
-        scenario_basename = SCENARIO_FILE_BASENAMES[presentation_type]
-        scenarios_path = Path(__file__).parent.parent.parent.parent / "data" / "scenarios"
-        role_play_file = scenarios_path / f"{scenario_basename}-role-play.prompt.yml"
-
-        if role_play_file.exists():
-            with open(role_play_file, "r") as f:
-                system_prompt = f.read()
-
-    logger.info(f"VoiceLive WebSocket connected for session {session_id}")
-
-    try:
-        # create_session handles the entire connection lifecycle including
-        # bidirectional message forwarding - it blocks until the connection closes
-        session_manager.create_session(
-            session_id,
-            system_prompt=system_prompt,
-            websocket=ws
-        )
-    except Exception as e:
-        logger.error(f"VoiceLive WebSocket error for session {session_id}: {e}")
-    finally:
-        session_manager.close_session(session_id)
-        logger.info(f"VoiceLive WebSocket disconnected for session {session_id}")
 
 
 # ----- Main Entry Point -----
