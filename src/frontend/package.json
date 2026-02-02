@@ -13,9 +13,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@fluentui/react": "^8.121.0",
-    "@fluentui/react-components": "^9.56.0",
-    "@fluentui/react-icons": "^2.0.270",
+    "@fluentui/react": "^8.125.4",
+    "@fluentui/react-components": "^9.72.11",
+    "@fluentui/react-icons": "^2.0.317",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0"
